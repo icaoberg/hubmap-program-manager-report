@@ -104,20 +104,29 @@ st.text("The goal of the Human BioMolecular Atlas Program (HuBMAP) is to develop
 # Add the plot
 st.subheader("Report")
 
+# Rename columns
+df.rename(columns={'dataset_type': 'Dataset Type', 'group_name':'Group Name'}, inplace=True)
+
+# Aggregate the data by Dataset Type first, then Group Name
+agg_df = df.groupby(['Dataset Type', 'Group Name']).size().unstack(fill_value=0)
+
+# Sort columns alphabetically (optional)
+agg_df = agg_df.sort_index(axis=1)
+
 # Create a Plotly bar chart
 fig = px.bar(
     agg_df.reset_index(),  # Reset index to use it in Plotly
-    x="Group Name",  # x-axis is Group Name
-    y=agg_df.columns,  # The columns are now Dataset Types
-    title=f"Published and unpublished primary datasets by group",
-    labels={"value": "Count", "variable": "Dataset Type"},
-    barmode="stack",
+    x='Dataset Type',  # x-axis is now Dataset Type
+    y=agg_df.columns,  # The columns are now Group Names
+    title=f'Published and unpublished primary datasets by dataset type vs data provider',
+    labels={'value': 'Count', 'variable': 'Group Name'},
+    barmode='stack',
     width=1600,  # Increase figure width
-    height=1000,  # Increase figure height
+    height=1000   # Increase figure height
 )
 
 # Customize the x-axis tick labels
-fig.update_xaxes(tickangle=45, title_text="Group Name")
+fig.update_xaxes(tickangle=45, title_text="Dataset Type")
 
 # Display the Plotly figure in Streamlit
 st.plotly_chart(fig)
